@@ -2,33 +2,47 @@
 #include <fstream>
 using namespace std;
 
-void readEntry( int& entry);
+void readEntry(ifstream& in, int& entry);
 
 int main() {
 
 
     // read table dimensions and allocate 2D array
     int nRows, nCols;
-    cout<<"Enter the number of rows and columns: ";
-    cin >> nRows >> nCols;
+
+    ifstream inFile;
+    ofstream  outFile;
+    inFile.open("../inputData.txt");
+    outFile.open("../outputData.txt");
+    if  (!inFile.is_open()) {
+        cout  << "Could not open input file" << endl;
+        return 1;
+    }
+    if  (!outFile.is_open()) {
+        cout << "Could not open output file" << endl;
+        return 1;
+    }
+
+    inFile >> nRows;
+    inFile >> nCols;
+
     int** table = new int*[nRows];
     for(int i = 0; i < nRows; i++) {
         table[i] = new int[nCols];
     }
 
     // read table data
-    cout<<"Enter your numbers: ";
     for(int i = 0; i < nRows; i++) {
         for(int j = 0; j < nCols; j++) {
             try {
-              readEntry(table[i][j]);
+              readEntry(inFile, table[i][j]);
             }
             catch (int x) {
-                    cout << "Entry " << i << "," << j << " not an integer, was set to " << x << ", now setting it to 0" << endl;
+                    cout << "Entry (" << i << "," << j << ") not an integer, was set to " << x << ", now setting it to 0" << endl;
                     table[i][j] = 0;
-                    cin.clear();
+                    inFile.clear();
                     string tmp;
-                    cin >> tmp;
+                    inFile >> tmp;
             }
         }
     }
@@ -36,11 +50,14 @@ int main() {
 
     // write table data to the screen in transposed order
     cout << nCols << " " << nRows << endl;
+    outFile << nCols  << " " << nRows << endl;
     for(int i = 0; i < nCols; i++) {
         for(int j = 0; j < nRows; j++) {
             cout << table[j][i] << " ";
+            outFile << table[j][i] << " ";
         }
         cout << endl;
+        outFile << endl;
     }
 
 
@@ -52,10 +69,10 @@ int main() {
 
 }
 
-void readEntry( int& entry) {
+void readEntry(ifstream& in, int& entry) {
 
-    cin >> entry;
-    if(cin.fail()) {
+    in >> entry;
+    if(in.fail()) {
         throw entry;
     }
 }
